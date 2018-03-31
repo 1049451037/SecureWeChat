@@ -5,10 +5,12 @@ s = []
 
 @itchat.msg_register(TEXT, isFriendChat=True, isGroupChat=True, isMpChat=True)
 def store_msg(msg):
-    s.append(msg)
+    if not msg['FromUserName']==myUserName:
+        s.append(msg)
     return 'I received: ' + msg.text
 
 itchat.auto_login(True)
+myUserName = itchat.get_friends(update=True)[0]["UserName"]
 itchat.run(blockThread=False)
 while True:
     ord = input('等待命令输入，请输入数字 1. 显示当前消息；2. 发送消息；其他. 退出程序：')
