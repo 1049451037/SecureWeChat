@@ -3,15 +3,25 @@ from itchat.content import TEXT
 
 s = []
 
-@itchat.msg_register(TEXT, isFriendChat=True, isGroupChat=True, isMpChat=True)
+@itchat.msg_register(TEXT, isFriendChat=True)
 def store_msg(msg):
     if not msg['FromUserName']==myUserName:
         s.append(msg)
-    return 'I received: ' + msg.text
+    return None # 'I received: ' + msg.text
+
+@itchat.msg_register(TEXT, isGroupChat=True)
+def text_reply(msg):
+    if msg['NickName']=='微信测试群' and msg.isAt:
+        msg.user.send(u'@%s\u2005I received: %s' % (msg.actualNickName, msg.text))
+    elif msg['NickName']=='微信测试群':
+        itchat.send(u'I received: %s'(msg.text), iRoom['UserName'])
 
 itchat.auto_login(True)
 myUserName = itchat.get_friends(update=True)[0]["UserName"]
 itchat.run(blockThread=False)
+iRoom = itchat.search_chatrooms('微信测试群')[0]
+# iRoom.send(u'测试消息2')
+# itchat.send(u'测试消息', iRoom['UserName'])
 while True:
     ord = input('等待命令输入，请输入数字 1. 显示当前消息；2. 发送消息；其他. 退出程序：')
     if ord=='1':
