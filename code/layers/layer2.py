@@ -20,18 +20,18 @@ class P2P(object):
         L = len(crypto)
         mynews = b''
         for i in range(L):
-            for j in range(8):
-                thbit = (crypto[i]>>j)&1
-                thchar = chr(ord('0')+thbit)
+            for j in range(0, 8, 4):
+                thbit = (crypto[i]>>j)&15
+                thchar = chr(ord('a')+thbit)
                 mynews += thchar.encode('ascii')
         return mynews.decode('ascii')
     def dec(self, msg, prikey):
         news = msg.encode('ascii')
         crypto = []
-        for i in range(0, len(news), 8):
+        for i in range(0, len(news), 2):
             num = 0
-            for j in range(8):
-                num = (num<<1) | (news[i+7-j]-ord('0'))
+            for j in range(2):
+                num = (num<<4) | (news[i+1-j]-ord('a'))
             crypto.append(num)
         crypto = bytes(crypto)
         message = rsa.decrypt(crypto, prikey)
@@ -43,6 +43,6 @@ class P2P(object):
         for msg in self.bottom.receive():
             try:
                 msgs.append(self.dec(msg, prikey))
-            except:
-                pass
+            except Exception as e:
+                print(e)
         return msgs
