@@ -1,48 +1,36 @@
-from .layer1 import Broadcasting as bc
-import rsa
+from .layer1 import CharStreamBroadcast as csbc
 
-# https://stuvel.eu/python-rsa-doc/usage.html
-# 仍需修改，因为rsa只能加密很短的信息
-
-class P2P(object):
+class ByteStreamBroadcast(object):
     def __init__(self, groupname):
-        self.bottom = bc(groupname)
-        self.members = self.bottom.room['MemberList']
-    def showmembers(self):
-        memberlist = []
-        # 'NickName', 'Statues', 'UniFriend', 'Uin', 'RemarkName', 'Signature', 'Alias', 'City', 'DisplayName', 'OwnerUin', 'HideInputBarFlag', 'MemberCount', 'RemarkPYInitial', 'AttrStatus', 'EncryChatRoomId', 'PYQuanPin', 'MemberList', 'KeyWord', 'ContactFlag', 'StarFriend', 'Province', 'UserName', 'Sex', 'SnsFlag', 'PYInitial', 'HeadImgUrl', 'RemarkPYQuanPin', 'ChatRoomId', 'IsOwner', 'AppAccountFlag', 'VerifyFlag'
-        for member in self.members:
-            memberlist.append(member['UserName']) # print NickName的时候会有编码问题
-        return memberlist
-    def enc(self, text, pubkey):
-        message = text.encode('utf8')
-        crypto = rsa.encrypt(message, pubkey)
-        L = len(crypto)
-        mynews = b''
+        self.down = csbc(groupname)
+    def enc(self, bytestream, scale = 4): # scale是把一个字节拆分成几位一组，可以选择的数字有1, 2, 4
+        L = len(bytestream)
+        filt = 2**scale - 1
+        newstream = b''
         for i in range(L):
-            for j in range(0, 8, 4):
-                thbit = (crypto[i]>>j)&15
+            for j in range(0, 8, scale):
+                thbit = (bytestream[i]>>j)&filt
                 thchar = chr(ord('a')+thbit)
-                mynews += thchar.encode('ascii')
-        return mynews.decode('ascii')
-    def dec(self, msg, prikey):
-        news = msg.encode('ascii')
-        crypto = []
-        for i in range(0, len(news), 2):
+                newstream += thchar.encode('ascii')
+        return newstream
+    def dec(self, charstream, scale = 4): # enc的scale和dec的scale要一致
+        newstream = charstream.encode('ascii')
+        bytestream = []
+        step = 8//scale
+        for i in range(0, len(newstream), step):
             num = 0
-            for j in range(2):
-                num = (num<<4) | (news[i+1-j]-ord('a'))
-            crypto.append(num)
-        crypto = bytes(crypto)
-        message = rsa.decrypt(crypto, prikey)
-        return message.decode('utf8')
-    def send(self, text, pubkey):
-        self.bottom.send(self.enc(text, pubkey))
-    def receive(self, prikey):
+            for j in range(step):
+                num = (num<<scale) | (news[i+step-1-j]-ord('a'))
+            bytestream.append(num)
+        bytestream = bytes(bytestream)
+        return bytestream
+    def send(self, bytestream, scale = 4):
+        self.down.send(self.enc(bytestream, scale).decode('ascii'))
+    def receive(self, scale = 4):
         msgs = []
-        for msg in self.bottom.receive():
+        for msg in self.down.receive():
             try:
-                msgs.append(self.dec(msg, prikey))
+                msgs.append(self.dec(msg, scale))
             except Exception as e:
-                print(e)
+                print(e) # 调试时候打印
         return msgs

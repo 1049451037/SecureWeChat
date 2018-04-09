@@ -18,7 +18,8 @@ So we call it a secure P2P protocol based on broadcasting network.
 
 # Structure
 Three layers.
-1. Broadcasting layer. This is provided by ItChat. It can send and receive char stream.
-2. P2P layer. Use the services provided by broadcasting layer to achieve P2P protocol. Here we need to build a public key certification service which is independent to wechat.
-3. APP layer. Some applications utilizing the functions of P2P layer. For example, we can build a 24h online person to response history message queries. Another example is that besides unicast, we can also consider accomplish multicast, anycast, broadcast(maybe more secure).
+1. Char stream broadcasting layer. This is provided by ItChat. It can send and receive char stream.
+2. Byte stream broadcasting layer. Based on char stream broadcasting layer and bit operation.
+3. P2P layer. Use the services provided by byte stream broadcasting layer to achieve P2P protocol. Here we need to build a public key certification service which is independent to wechat.
+4. APP layer. Some applications utilizing the functions of P2P layer. For example, we can build a 24h online person to response history message queries. Another example is that besides unicast, we can also consider accomplish multicast, anycast, broadcast(maybe more secure).
 
