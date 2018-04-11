@@ -3,6 +3,7 @@ from .layer1 import CharStreamBroadcast as csbc
 class ByteStreamBroadcast(object):
     def __init__(self, groupname):
         self.down = csbc(groupname)
+        self.room = self.down.room
     def enc(self, bytestream, scale = 4): # scale是把一个字节拆分成几位一组，可以选择的数字有1, 2, 4
         L = len(bytestream)
         filt = 2**scale - 1

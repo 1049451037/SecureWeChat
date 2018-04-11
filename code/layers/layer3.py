@@ -1,9 +1,6 @@
 from .layer2 import ByteStreamBroadcast as bsbc
 import rsa
 
-# https://stuvel.eu/python-rsa-doc/usage.html
-# 仍需修改，因为rsa只能加密很短的信息
-
 class P2P(object):
     def __init__(self, groupname):
         self.down = bsbc(groupname)

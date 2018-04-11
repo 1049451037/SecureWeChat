@@ -13,8 +13,14 @@ class CharStreamBroadcast(object):
         itchat.auto_login(True)
         GroupName = groupname
         itchat.run(blockThread=False)
-        self.room = itchat.search_chatrooms(GroupName)[0]
+        rooms = itchat.search_chatrooms(GroupName)
+        for i in range(len(rooms)):
+            print(str(i) +'.', rooms[i]['NickName'])
+        id = int(input('找到' + str(len(rooms)) + '个相关群，请输入群编号：'))
+        self.room = rooms[id]
         self.room = itchat.update_chatroom(self.room['UserName'], detailedMember=True)
+        # myUserName = itchat.get_friends(update=True)[0]["UserName"]
+        # print(myUserName)
     def send(self, charstream):
         self.room.send(charstream)
     def receive(self):
