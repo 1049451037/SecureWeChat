@@ -19,7 +19,9 @@ class P2P(object):
         msgs = []
         for msg in self.down.receive():
             try:
-                msgs.append(rsa.decrypt(crypto, prikey).decode('utf8'))
+                msgs.append(rsa.decrypt(msg, prikey).decode('utf8'))
             except Exception as e:
                 print(e) # 调试时候打印
         return msgs
+    def logout(self):
+        self.down.logout()

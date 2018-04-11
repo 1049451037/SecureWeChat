@@ -25,3 +25,5 @@ class CharStreamBroadcast(object):
         self.room.send(charstream)
     def receive(self):
         return msgs
+    def logout(self):
+        itchat.logout()

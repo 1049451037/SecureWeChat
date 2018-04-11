@@ -21,7 +21,7 @@ class ByteStreamBroadcast(object):
         for i in range(0, len(newstream), step):
             num = 0
             for j in range(step):
-                num = (num<<scale) | (news[i+step-1-j]-ord('a'))
+                num = (num<<scale) | (newstream[i+step-1-j]-ord('a'))
             bytestream.append(num)
         bytestream = bytes(bytestream)
         return bytestream
@@ -35,3 +35,5 @@ class ByteStreamBroadcast(object):
             except Exception as e:
                 print(e) # 调试时候打印
         return msgs
+    def logout(self):
+        self.down.logout()
