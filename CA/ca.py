@@ -2,9 +2,14 @@ import itchatmp
 import rsa
 import pickle
 
-'''
-这里有一段代码被省略了，因为涉及CA私钥、公众号appSecret等隐秘信息
-'''
+
+with open('cakey/pri.pem', 'rb') as f:  # 私钥也不传到github了
+    prikey = rsa.PrivateKey.load_pkcs1(f.read())
+
+itchatmp.update_config(itchatmp.WechatConfig(
+    token='',
+    appId = '',
+    appSecret = ''))  # 这些信息就不传到github了，属于隐秘信息
 
 def enc(bytestream, scale = 4): # scale是把一个字节拆分成几位一组，可以选择的数字有1, 2, 4
     L = len(bytestream)

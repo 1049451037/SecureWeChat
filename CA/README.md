@@ -1,0 +1,1 @@
+公钥认证，使用[itchatmp](http://itchatmp.readthedocs.io/zh_CN/latest/intro/environment/)完成

@@ -13,7 +13,8 @@ So we call it a secure P2P protocol based on broadcasting network.
 * Windows or Ubuntu
 * Python 3.5+
     * [Itchat](https://github.com/littlecodersh/ItChat)
-    * [rsa](https://pypi.python.org/pypi/rsa)
+    * [rsa](https://stuvel.eu/python-rsa-doc/usage.html)
+    * [cryptography](https://cryptography.io/en/latest/fernet/)
     * [hashlib](https://docs.python.org/3/library/hashlib.html?highlight=hashlib#module-hashlib)
     * [tkinter](https://docs.python.org/3/library/tkinter.html)
 
