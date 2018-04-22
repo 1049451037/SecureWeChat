@@ -29,7 +29,7 @@ class GetKey(object):
                 f.write(pubkey.save_pkcs1())
             with open('cert/pri.pem', 'wb') as f:
                 f.write(prikey.save_pkcs1())
-            with open('cert/pub.pem', 'rb') as f:
+            with open('cert/pri.pem', 'rb') as f:
                 return f.read()
     def get_ca_pubkey(self):
         try:
