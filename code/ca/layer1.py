@@ -18,7 +18,7 @@ class CharStreamCA(object):
         mps = itchat.search_mps(name=CAName)
         for i in range(len(mps)):
             print(str(i) +'.', mps[i]['NickName'])
-        id = int(input('找到' + str(len(mps)) + '个相关公众号，请输入CA编号：'))
+        id = int(input('找到' + str(len(mps)) + '个公钥认证机构，请输入你想要去认证的机构编号：'))
         self.ca = mps[id]
         # myInfo = itchat.get_friends(update=True)[0]
         # print(myInfo)
