@@ -1,10 +1,6 @@
-from .layer2 import ByteStreamBroadcast as bsbc
-import rsa
-import pickle
-from cryptography.fernet import Fernet
-from .services.keys import GetKey
-
 '''
+P2P层，实现点对点安全通信的字节流信道
+
 About send()
 使用pickle字典作为P2P层的消息传输方法，消息字段有：
     cert: digital certificate
@@ -21,6 +17,12 @@ receive要做的事情有三个：
 
 trust.pkl用来保存已经认证公钥的好友，数据结构是一个字典，由pubkey映射到用户信息
 '''
+
+from .layer2 import ByteStreamBroadcast as bsbc
+import rsa
+import pickle
+from cryptography.fernet import Fernet
+from .services.keys import GetKey
 
 class P2P(object):
     def __init__(self, groupname):
