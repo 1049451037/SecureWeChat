@@ -20,7 +20,7 @@ So we call it a secure P2P protocol based on broadcasting network.
 
 # Structure
 ## Layers
-Three layers.
+Four layers.
 1. Char stream broadcasting layer. This is provided by ItChat. It can send and receive char stream.
 2. Byte stream broadcasting layer. Based on char stream broadcasting layer and bit operation.
 3. P2P layer. Use the services provided by byte stream broadcasting layer to achieve P2P protocol. Here we need to build a public key certification service which is independent to wechat.
@@ -29,5 +29,5 @@ Three layers.
     * Accomplish multicast, anycast, broadcast(maybe more secure) besides unicast.
     * GUI interface.
 ## Services
-1. Public key control.
-2. Message protocol.
+1. Certificate Authority.
+2. Public keys and private key.
