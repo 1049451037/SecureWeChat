@@ -10,7 +10,7 @@ def receive_msg(msg):
         msgs.append(msg.text)
 
 class CharStreamCA(object):
-    def __init__(self, caname=CAName):
+    def __init__(self, caname):
         itchat.auto_login(True)
         CAName = caname
         itchat.run(blockThread=False)
