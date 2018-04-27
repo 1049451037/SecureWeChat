@@ -12,6 +12,7 @@ def receive_msg(msg):
 class CharStreamCA(object):
     def __init__(self, caname):
         itchat.auto_login(True)
+        global CAName
         CAName = caname
         itchat.run(blockThread=False)
         mps = itchat.get_mps()
