@@ -23,6 +23,8 @@ import rsa
 import pickle
 from cryptography.fernet import Fernet
 from .services.keys import GetKey
+import random
+import json
 
 class P2P(object):
     def __init__(self, groupname):
@@ -34,6 +36,41 @@ class P2P(object):
             self.cert = f.read()
         with open('cert/cert_sig', 'rb') as f:
             self.cert_sig = f.read()
+        self.init_counter()
+
+    def init_counter(self):
+        '''
+        init send counter at initialization
+        '''
+        js_list = None
+        try:
+            with open('config.json', 'r') as fin:
+                js_list = json.load(fin)
+        except FileNotFoundError:
+            pass
+        if js_list == None:
+            self.current_n = random.random(1, 100000)
+            self.next_n = random.random(1, 100000)
+            self.receive_dict = {}
+        else:
+            self.current_n = js_list['current_n']
+            self.next_n = js_list['next_n']
+            self.receive_dict = js_list['receive_dict']
+
+    def update_in_receive(self, name, next_n):
+        '''
+        update receive_dict in receiving message
+        '''
+        self.receive_dict[name] = next_n
+
+    def update_in_send(self):
+        '''
+        update current_n and next_n in sending message
+        '''
+        self.next_n = self.current_n
+        self.next_n = random.random(1, 100000)
+
+
     def send(self, message, target_pubkey): # message is bytestream
         self_prikey = rsa.PrivateKey.load_pkcs1(self.gk.get_self_prikey())
         target_pubkey = rsa.PublicKey.load_pkcs1(target_pubkey)
@@ -46,6 +83,9 @@ class P2P(object):
         dic['message'] = message
         symkey = rsa.encrypt(symkey, target_pubkey)
         dic['symkey'] = symkey
+        dic['current_n'] = self.current_n
+        dic['next_n'] = self.next_n
+        self.update_in_send()
         self.down.send(pickle.dumps(dic))
     def receive(self):
         self_prikey = rsa.PrivateKey.load_pkcs1(self.gk.get_self_prikey())
@@ -62,9 +102,14 @@ class P2P(object):
                     symkey = rsa.decrypt(dic['symkey'], self_prikey)
                     f = Fernet(symkey)
                     message = f.decrypt(dic['message'])
+                    current_n = f.decrypt(dic['current_n'])
+                    next_n = f.decrypt(dic['next_n'])
                     pubkey = rsa.PublicKey.load_pkcs1(info['key'])
                     if rsa.verify(message, dic['sig'], pubkey):
+                        if self.receive_dict[info['name']] == current_n:
+                            self.update_in_receive(info['name'], next_n)
                         msgs.append((message, info['name'], info['sex'], info['mail']))
+
             except Exception as e:
                 print(e)
         return msgs

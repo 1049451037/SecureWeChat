@@ -2,7 +2,7 @@ from include.layer4 import Chat
 from include.services.ca import GetCertificate
 
 if __name__ == '__main__':
-    CA = 'smallcoder'
+    CA = '微信公众平台测试号'
     GetCertificate(CA)
     chatroom = '微信测试群'
     chat = Chat(chatroom)
