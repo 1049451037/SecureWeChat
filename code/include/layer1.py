@@ -11,6 +11,7 @@ def receive_msg(msg):
 class CharStreamBroadcast(object):
     def __init__(self, groupname):
         itchat.auto_login(True)
+        global GroupName
         GroupName = groupname
         itchat.run(blockThread=False)
         rooms = itchat.search_chatrooms(GroupName)

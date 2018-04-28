@@ -1,7 +1,7 @@
 import itchat
 from itchat.content import TEXT
 
-CAName = 'smallcoder'
+#CAName = 'smallcoder'
 msgs = []
 
 @itchat.msg_register(TEXT, isMpChat=True)
@@ -10,8 +10,9 @@ def receive_msg(msg):
         msgs.append(msg.text)
 
 class CharStreamCA(object):
-    def __init__(self, caname=CAName):
+    def __init__(self, caname):
         itchat.auto_login(True)
+        global CAName
         CAName = caname
         itchat.run(blockThread=False)
         mps = itchat.get_mps()

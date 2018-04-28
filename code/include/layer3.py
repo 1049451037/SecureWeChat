@@ -23,6 +23,8 @@ import rsa
 import pickle
 from cryptography.fernet import Fernet
 from .services.keys import GetKey
+import random
+import json
 
 class P2P(object):
     def __init__(self, groupname):
@@ -34,7 +36,56 @@ class P2P(object):
             self.cert = f.read()
         with open('cert/cert_sig', 'rb') as f:
             self.cert_sig = f.read()
-    def send(self, message, target_pubkey): # message is bytestream
+        self.init_counter()
+
+    def init_counter(self):
+        '''
+        init send counter at initialization
+        '''
+        js_list = None
+        try:
+            with open('contact/contact_list.json', 'r') as fin:
+                self.js_list = json.load(fin)
+        except FileNotFoundError:
+            pass
+        if js_list == None:
+            self.current_n = random.randint(1, 100000)
+            self.next_n = random.randint(1, 100000)
+            self.receive_dict = {}
+            self.js_list = {
+                'current_n': self.current_n,
+                'next_n': self.next_n,
+                'receive_dict': self.receive_dict
+                 }
+        else:
+            self.current_n = self.js_list['current_n']
+            self.next_n = self.js_list['next_n']
+            self.receive_dict = self.js_list['receive_dict']
+
+    def update_in_receive(self, name, next_n):
+        '''
+        update receive_dict in receiving message
+        '''
+        self.receive_dict[name] = next_n
+        self.js_list['receive_dict'] = self.receive_dict
+        with open('contact/contact_list.json', 'w') as fou:
+            json.dump(self.js_list, fou)
+
+    def update_in_send(self):
+        '''
+        update current_n and next_n in sending message
+        '''
+        print('update in send!')
+        print(self.current_n)
+        print(self.next_n)
+        self.current_n = self.next_n
+        self.next_n = random.randint(1, 100000)
+        self.js_list['current_n'] = self.current_n
+        self.js_list['next_n'] = self.next_n
+        with open('contact/contact_list.json', 'w') as fou:
+            json.dump(self.js_list, fou)
+
+    def send(self, message, target_pubkey, broadcast=False): # message is bytestream
         self_prikey = rsa.PrivateKey.load_pkcs1(self.gk.get_self_prikey())
         target_pubkey = rsa.PublicKey.load_pkcs1(target_pubkey)
         dic = {'cert': self.cert, 'cert_sig': self.cert_sig}
@@ -46,7 +97,12 @@ class P2P(object):
         dic['message'] = message
         symkey = rsa.encrypt(symkey, target_pubkey)
         dic['symkey'] = symkey
+        if broadcast == False:
+            dic['current_n'] = str(self.current_n).encode('utf-8')
+            dic['next_n'] = str(self.next_n).encode('utf-8')
+            self.update_in_send()
         self.down.send(pickle.dumps(dic))
+
     def receive(self):
         self_prikey = rsa.PrivateKey.load_pkcs1(self.gk.get_self_prikey())
         msgs = []
@@ -62,9 +118,20 @@ class P2P(object):
                     symkey = rsa.decrypt(dic['symkey'], self_prikey)
                     f = Fernet(symkey)
                     message = f.decrypt(dic['message'])
+                    try:
+                        current_n = dic['current_n'].decode('utf-8')
+                        next_n = dic['next_n'].decode('utf-8')
+                    except KeyError:
+                        pass
                     pubkey = rsa.PublicKey.load_pkcs1(info['key'])
                     if rsa.verify(message, dic['sig'], pubkey):
-                        msgs.append((message, info['name'], info['sex'], info['mail']))
+                        if info['name'] not in self.receive_dict:
+                            self.update_in_receive(info['name'], next_n)
+                            msgs.append((message.decode('utf-8'), info['name'], info['sex'], info['mail']))
+                        elif self.receive_dict[info['name']] == current_n:
+                            self.update_in_receive(info['name'], next_n)
+                            msgs.append((message.decode('utf-8'), info['name'], info['sex'], info['mail']))
+
             except Exception as e:
                 print(e)
         return msgs
