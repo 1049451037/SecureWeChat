@@ -98,8 +98,8 @@ class P2P(object):
         symkey = rsa.encrypt(symkey, target_pubkey)
         dic['symkey'] = symkey
         if broadcast == False:
-            dic['current_n'] = str(self.current_n).encode('utf-8')
-            dic['next_n'] = str(self.next_n).encode('utf-8')
+            dic['current_n'] = f.encrypt(str(self.current_n).encode('utf-8')) # Here I add f.encrypt
+            dic['next_n'] = f.encrypt(str(self.next_n).encode('utf-8')) # Here I also add f.encrypt
             self.update_in_send()
         self.down.send(pickle.dumps(dic))
 
@@ -119,8 +119,8 @@ class P2P(object):
                     f = Fernet(symkey)
                     message = f.decrypt(dic['message'])
                     try:
-                        current_n = dic['current_n'].decode('utf-8')
-                        next_n = dic['next_n'].decode('utf-8')
+                        current_n = f.decrypt(dic['current_n']).decode('utf-8') # Here I add f.decrypt
+                        next_n = f.decrypt(dic['next_n']).decode('utf-8') # Here I also add f.decrypt
                     except KeyError:
                         pass
                     pubkey = rsa.PublicKey.load_pkcs1(info['key'])
