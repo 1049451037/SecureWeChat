@@ -25,6 +25,7 @@ from cryptography.fernet import Fernet
 from .services.keys import GetKey
 import random
 import json
+import os
 
 class P2P(object):
     def __init__(self, groupname):
@@ -42,13 +43,13 @@ class P2P(object):
         '''
         init send counter at initialization
         '''
-        js_list = None
+        self.js_list = None
         try:
             with open('contact/contact_list.json', 'r') as fin:
                 self.js_list = json.load(fin)
         except FileNotFoundError:
-            pass
-        if js_list == None:
+            os.makedirs('contact', exist_ok = True)
+        if self.js_list is None:
             self.current_n = random.randint(1, 100000)
             self.next_n = random.randint(1, 100000)
             self.receive_dict = {}
@@ -122,7 +123,7 @@ class P2P(object):
                         current_n = f.decrypt(dic['current_n']).decode('utf-8') # Here I add f.decrypt
                         next_n = f.decrypt(dic['next_n']).decode('utf-8') # Here I also add f.decrypt
                     except KeyError:
-                        pass
+                        print(e)
                     pubkey = rsa.PublicKey.load_pkcs1(info['key'])
                     if rsa.verify(message, dic['sig'], pubkey):
                         if info['name'] not in self.receive_dict:
