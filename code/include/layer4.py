@@ -19,7 +19,7 @@ class Chat(object):
         if id>=len(friends) or id<0:
             return
         text = input('请输入消息内容：')
-        self.down.send(text.encode('utf8'), friends[i][0])
+        self.down.send(text.encode('utf8'), friends[id][0])
     def receive(self):
         msgs = self.down.receive()
         print('共有' + str(len(msgs)) + '条消息')

@@ -1,14 +1,15 @@
 import itchat
-from itchat.content import TEXT
+from itchat.content import PICTURE
+import io
 
 GroupName = '微信测试群'
 msgs = []
 
-@itchat.msg_register(TEXT, isGroupChat=True)
-def receive_msg(msg):
-    msgs.append(msg.text) # 自己发的消息是否也会进来？如何判断仅属于GroupName的消息才接收？
+@itchat.msg_register(PICTURE, isGroupChat=True)
+def download_file(msg):
+    msgs.append(msg.fileName) # 如何判断仅属于GroupName的消息才接收？或者是否需要这样的判断？
 
-class CharStreamBroadcast(object):
+class ImageBroadcast(object):
     def __init__(self, groupname):
         itchat.auto_login(True)
         global GroupName
@@ -22,9 +23,22 @@ class CharStreamBroadcast(object):
         self.room = itchat.update_chatroom(self.room['UserName'], detailedMember=True)
         # myUserName = itchat.get_friends(update=True)[0]["UserName"]
         # print(myUserName)
-    def send(self, charstream):
-        self.room.send(charstream)
-    def receive(self):
+    def send(self, img_file_name): # image file name
+        '''
+        这里本来也可以传入图片的二进制的，但是这个方法itchat有个bug，就是gif图片会变成静态的，所以就改成用文件名了，所以可能需要在本地中转一下
+        '''
+        self.room.send_image(img_file_name)
+    def receive(self): # return a list of file names of images
+        '''
+        因为itchat收到图片以后会自动保存到本地，因此这个函数返回文件名列表
+        '''
         return msgs
     def logout(self):
         itchat.logout()
+
+if __name__ == '__main__':  # 测试程序
+    ib = ImageBroadcast('微信测试群')
+    ib.send('pic.jpg')
+    ib.send('pic2.gif')
+    input()
+    print(ib.receive())

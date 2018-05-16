@@ -15,7 +15,7 @@ So we call it a secure P2P protocol based on broadcasting network.
     * [Itchat](https://github.com/littlecodersh/ItChat)
     * [rsa](https://stuvel.eu/python-rsa-doc/usage.html)
     * [cryptography](https://cryptography.io/en/latest/fernet/)
-    * [hashlib](https://docs.python.org/3/library/hashlib.html?highlight=hashlib#module-hashlib)
+    * [stepic](https://github.com/1049451037/stepic)
     * [tkinter](https://docs.python.org/3/library/tkinter.html)
 
 # Structure
