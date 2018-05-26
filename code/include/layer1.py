@@ -1,5 +1,5 @@
 import itchat
-from itchat.content import PICTURE
+from itchat.content import *
 import io
 
 GroupName = '微信测试群'
@@ -7,7 +7,9 @@ msgs = []
 
 @itchat.msg_register(PICTURE, isGroupChat=True)
 def download_file(msg):
-    msgs.append(msg.fileName) # 如何判断仅属于GroupName的消息才接收？或者是否需要这样的判断？
+    fn = './download/' + msg.fileName
+    msg.download(fn)
+    msgs.append(fn) # 如何判断仅属于GroupName的消息才接收？或者是否需要这样的判断？
 
 class ImageBroadcast(object):
     def __init__(self, groupname):
@@ -27,7 +29,7 @@ class ImageBroadcast(object):
         '''
         这里本来也可以传入图片的二进制的，但是这个方法itchat有个bug，就是gif图片会变成静态的，所以就改成用文件名了，所以可能需要在本地中转一下
         '''
-        self.room.send_image(img_file_name)
+        self.room.send_file(img_file_name)
     def receive(self): # return a list of file names of images
         '''
         因为itchat收到图片以后会自动保存到本地，因此这个函数返回文件名列表
@@ -38,7 +40,6 @@ class ImageBroadcast(object):
 
 if __name__ == '__main__':  # 测试程序
     ib = ImageBroadcast('微信测试群')
-    ib.send('pic.jpg')
-    ib.send('pic2.gif')
+    ib.send('./download/pic.png')
     input()
     print(ib.receive())

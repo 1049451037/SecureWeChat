@@ -1,38 +1,53 @@
-from .layer1 import CharStreamBroadcast as csbc
+from layer1 import ImageBroadcast as imgbc
+import os
+import random
+import string
+import stepic
+from PIL import Image
 
 class ByteStreamBroadcast(object):
     def __init__(self, groupname):
-        self.down = csbc(groupname)
-    def enc(self, bytestream, scale = 4): # scale是把一个字节拆分成几位一组，可以选择的数字有1, 2, 4
-        L = len(bytestream)
-        filt = 2**scale - 1
-        newstream = b''
-        for i in range(L):
-            for j in range(0, 8, scale):
-                thbit = (bytestream[i]>>j)&filt
-                thchar = chr(ord('a')+thbit)
-                newstream += thchar.encode('ascii')
-        return newstream.decode('ascii')
-    def dec(self, charstream, scale = 4): # enc的scale和dec的scale要一致
-        newstream = charstream.encode('ascii')
-        bytestream = []
-        step = 8//scale
-        for i in range(0, len(newstream), step):
-            num = 0
-            for j in range(step):
-                num = (num<<scale) | (newstream[i+step-1-j]-ord('a'))
-            bytestream.append(num)
-        bytestream = bytes(bytestream)
+        self.down = imgbc(groupname)
+    def random_name(self, size = 6, chars = string.ascii_lowercase + string.digits):
+        return ''.join(random.choice(chars) for _ in range(size))
+    def get_a_file_name(self):
+        fns = []
+        for fn in os.listdir('./download'):
+            if fn.find('.') != -1 and fn.split('.')[-1].lower() in set(['jpg', 'jpeg', 'png']):
+                fns.append(fn)
+        return './download/' + random.choice(fns)
+    def enc(self, bytestream):
+        fn = self.get_a_file_name()
+        hz = fn.split('.')[-1]
+        img = Image.open(fn)
+        modified = stepic.encode(img, bytestream)
+        new_fn = './generated/' + self.random_name() + '.' + hz
+        if hz.lower() == 'jpg' or hz.lower() == 'jepg':
+            format = 'JPEG'
+        else:
+            format = 'PNG'
+        modified.save(new_fn, format)
+        return new_fn
+    def dec(self, file_name_of_image):
+        img = Image.open(file_name_of_image)
+        bytestream = stepic.decode(img)
         return bytestream
-    def send(self, bytestream, scale = 4):
-        self.down.send(self.enc(bytestream, scale))
-    def receive(self, scale = 4):
+    def send(self, bytestream):
+        self.down.send(self.enc(bytestream))
+    def receive(self):
         msgs = []
         for msg in self.down.receive():
             try:
-                msgs.append(self.dec(msg, scale))
+                msgs.append(self.dec(msg))
             except Exception as e:
                 print(e) # 调试时候打印
         return msgs
     def logout(self):
         self.down.logout()
+
+if __name__ == '__main__':
+    bsbc = ByteStreamBroadcast('微信测试群')
+    bsbc.send(b'hello')
+    input()
+    for msg in bsbc.receive():
+        print(msg.decode('utf8'))
