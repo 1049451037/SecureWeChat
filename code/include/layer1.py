@@ -1,3 +1,4 @@
+from .config import Config
 import itchat
 from itchat.content import *
 import io
@@ -7,7 +8,7 @@ msgs = []
 
 @itchat.msg_register(PICTURE, isGroupChat=True)
 def download_file(msg):
-    fn = './download/' + msg.fileName
+    fn = Config.pre_path + 'download/' + msg.fileName
     msg.download(fn)
     msgs.append(fn) # 如何判断仅属于GroupName的消息才接收？或者是否需要这样的判断？
 

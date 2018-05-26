@@ -1,4 +1,5 @@
-from layer1 import ImageBroadcast as imgbc
+from .layer1 import ImageBroadcast as imgbc
+from .config import Config
 import os
 import random
 import string
@@ -12,16 +13,16 @@ class ByteStreamBroadcast(object):
         return ''.join(random.choice(chars) for _ in range(size))
     def get_a_file_name(self):
         fns = []
-        for fn in os.listdir('./download'):
+        for fn in os.listdir(Config.pre_path + 'download'):
             if fn.find('.') != -1 and fn.split('.')[-1].lower() in set(['jpg', 'jpeg', 'png']):
                 fns.append(fn)
-        return './download/' + random.choice(fns)
+        return Config.pre_path + 'download/' + random.choice(fns)
     def enc(self, bytestream):
         fn = self.get_a_file_name()
         hz = fn.split('.')[-1]
         img = Image.open(fn)
         modified = stepic.encode(img, bytestream)
-        new_fn = './generated/' + self.random_name() + '.' + hz
+        new_fn = Config.pre_path + 'generated/' + self.random_name() + '.' + hz
         if hz.lower() == 'jpg' or hz.lower() == 'jepg':
             format = 'JPEG'
         else:
