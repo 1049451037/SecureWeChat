@@ -38,6 +38,7 @@ class P2P(object):
         with open('cert/cert_sig', 'rb') as f:
             self.cert_sig = f.read()
         self.init_counter()
+        self.msg_in_queue = []
 
     def init_counter(self):
         '''
@@ -107,6 +108,7 @@ class P2P(object):
     def receive(self):
         self_prikey = rsa.PrivateKey.load_pkcs1(self.gk.get_self_prikey())
         msgs = []
+
         for msg in self.down.receive():
             try:
                 dic = pickle.loads(msg)
@@ -129,9 +131,14 @@ class P2P(object):
                         if info['name'] not in self.receive_dict:
                             self.update_in_receive(info['name'], next_n)
                             msgs.append((message.decode('utf-8'), info['name'], info['sex'], info['mail']))
+                            msg_in_queue.append(current_n)
                         elif self.receive_dict[info['name']] == current_n:
                             self.update_in_receive(info['name'], next_n)
                             msgs.append((message.decode('utf-8'), info['name'], info['sex'], info['mail']))
+                            msg_in_queue.append(current_n)
+                        if current_n in self.msg_in_queue:
+                            msgs.append((message.decode('utf-8'), info['name'], info['sex'], info['mail']))
+
 
             except Exception as e:
                 print(e)
