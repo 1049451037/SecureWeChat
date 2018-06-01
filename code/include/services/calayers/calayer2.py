@@ -8,13 +8,13 @@ class ByteStreamCA(object):
         return base64.b64encode(bytestream).decode('ascii')
     def dec(self, charstream):
         return base64.b64decode(charstream)
-    def send(self, bytestream, scale = 4):
-        self.down.send(self.enc(bytestream, scale))
-    def receive(self, scale = 4):
+    def send(self, bytestream):
+        self.down.send(self.enc(bytestream))
+    def receive(self):
         msgs = []
         for msg in self.down.receive():
             try:
-                msgs.append(self.dec(msg, scale))
+                msgs.append(self.dec(msg))
             except Exception as e:
                 pass
         return msgs

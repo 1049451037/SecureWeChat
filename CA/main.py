@@ -1,6 +1,7 @@
 import itchatmp
 import rsa
 import pickle
+import base64
 
 with open('cakey/pri.pem', 'rb') as f:
     prikey = rsa.PrivateKey.load_pkcs1(f.read())

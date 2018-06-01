@@ -124,7 +124,7 @@ class P2P(object):
                     try:
                         current_n = f.decrypt(dic['current_n']).decode('utf-8') # Here I add f.decrypt
                         next_n = f.decrypt(dic['next_n']).decode('utf-8') # Here I also add f.decrypt
-                    except KeyError:
+                    except KeyError as e:
                         print(e)
                     pubkey = rsa.PublicKey.load_pkcs1(info['key'])
                     if rsa.verify(message, dic['sig'], pubkey):

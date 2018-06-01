@@ -31,6 +31,7 @@ class ImageBroadcast(object):
         这里本来也可以传入图片的二进制的，但是这个方法itchat有个bug，就是gif图片会变成静态的，所以就改成用文件名了，所以可能需要在本地中转一下
         '''
         self.room.send_file(img_file_name)
+        msgs.append(img_file_name)
     def receive(self): # return a list of file names of images
         '''
         因为itchat收到图片以后会自动保存到本地，因此这个函数返回文件名列表

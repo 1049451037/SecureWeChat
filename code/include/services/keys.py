@@ -34,7 +34,7 @@ class GetKey(object):
             with open('cert/capub.pem', 'rb') as f:
                 return f.read()
         except:
-            pubkey = requests.get('https://raw.githubusercontent.com/1049451037/SecureWeChat/master/CA/cakey/pub.pem').content
+            pubkey = requests.get('https://1049451037.github.io/file/pub.pem').content
             os.makedirs('cert', exist_ok=True)
             with open('cert/capub.pem', 'wb') as f:
                 f.write(pubkey)
