@@ -38,7 +38,7 @@ class P2P(object):
         with open('cert/cert_sig', 'rb') as f:
             self.cert_sig = f.read()
         self.init_counter()
-        self.msg_in_queue = []
+        self.msgs = []
 
     def init_counter(self):
         '''
@@ -87,7 +87,7 @@ class P2P(object):
         with open('contact/contact_list.json', 'w') as fou:
             json.dump(self.js_list, fou)
 
-    def send(self, message, target_pubkey, broadcast=False): # message is bytestream
+    def send(self, message, target_pubkey): # message is bytestream
         self_prikey = rsa.PrivateKey.load_pkcs1(self.gk.get_self_prikey())
         target_pubkey = rsa.PublicKey.load_pkcs1(target_pubkey)
         dic = {'cert': self.cert, 'cert_sig': self.cert_sig}
@@ -99,16 +99,13 @@ class P2P(object):
         dic['message'] = message
         symkey = rsa.encrypt(symkey, target_pubkey)
         dic['symkey'] = symkey
-        if broadcast == False:
-            dic['current_n'] = f.encrypt(str(self.current_n).encode('utf-8')) # Here I add f.encrypt
-            dic['next_n'] = f.encrypt(str(self.next_n).encode('utf-8')) # Here I also add f.encrypt
-            self.update_in_send()
+        dic['current_n'] = f.encrypt(str(self.current_n).encode('utf-8'))
+        dic['next_n'] = f.encrypt(str(self.next_n).encode('utf-8'))
+        self.update_in_send()
         self.down.send(pickle.dumps(dic))
 
     def receive(self):
         self_prikey = rsa.PrivateKey.load_pkcs1(self.gk.get_self_prikey())
-        msgs = []
-
         for msg in self.down.receive():
             try:
                 dic = pickle.loads(msg)
@@ -121,28 +118,20 @@ class P2P(object):
                     symkey = rsa.decrypt(dic['symkey'], self_prikey)
                     f = Fernet(symkey)
                     message = f.decrypt(dic['message'])
-                    try:
-                        current_n = f.decrypt(dic['current_n']).decode('utf-8') # Here I add f.decrypt
-                        next_n = f.decrypt(dic['next_n']).decode('utf-8') # Here I also add f.decrypt
-                    except KeyError as e:
-                        print(e)
+                    current_n = f.decrypt(dic['current_n']).decode('utf-8')
+                    next_n = f.decrypt(dic['next_n']).decode('utf-8')
                     pubkey = rsa.PublicKey.load_pkcs1(info['key'])
                     if rsa.verify(message, dic['sig'], pubkey):
                         if info['name'] not in self.receive_dict:
                             self.update_in_receive(info['name'], next_n)
-                            msgs.append((message.decode('utf-8'), info['name'], info['sex'], info['mail']))
-                            msg_in_queue.append(current_n)
+                            self.msgs.append((message.decode('utf-8'), info['name'], info['sex'], info['mail']))
                         elif self.receive_dict[info['name']] == current_n:
                             self.update_in_receive(info['name'], next_n)
-                            msgs.append((message.decode('utf-8'), info['name'], info['sex'], info['mail']))
-                            msg_in_queue.append(current_n)
-                        if current_n in self.msg_in_queue:
-                            msgs.append((message.decode('utf-8'), info['name'], info['sex'], info['mail']))
-
+                            self.msgs.append((message.decode('utf-8'), info['name'], info['sex'], info['mail']))
 
             except Exception as e:
                 print(e)
-        return msgs
+        return self.msgs
     def logout(self):
         with open('trust.pkl', 'wb') as f:
             pickle.dump(self.trust, f)
