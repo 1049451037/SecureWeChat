@@ -31,6 +31,6 @@ class Chat(object):
             print(i, friends[i][1]['name'], friends[i][1]['sex'], friends[i][1]['mail'])
     def broadcast(self):
         gk = GetKey()
-        self.down.send('hello'.encode('utf8'), gk.get_self_pubkey(), broadcast=True)
+        self.down.send('hello'.encode('utf8'), gk.get_self_pubkey())
     def logout(self):
         self.down.logout()
