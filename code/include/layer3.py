@@ -122,12 +122,7 @@ class P2P(object):
                     next_n = f.decrypt(dic['next_n']).decode('utf-8')
                     pubkey = rsa.PublicKey.load_pkcs1(info['key'])
                     if rsa.verify(message, dic['sig'], pubkey):
-                        if info['name'] not in self.receive_dict:
-                            self.update_in_receive(info['name'], next_n)
-                            self.msgs.append((message.decode('utf-8'), info['name'], info['sex'], info['mail']))
-                        elif self.receive_dict[info['name']] == current_n:
-                            self.update_in_receive(info['name'], next_n)
-                            self.msgs.append((message.decode('utf-8'), info['name'], info['sex'], info['mail']))
+                        self.msgs.append((message.decode('utf-8'), info['name'], info['sex'], info['mail']))
 
             except Exception as e:
                 print(e)
