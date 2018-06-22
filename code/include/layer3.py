@@ -101,7 +101,7 @@ class P2P(object):
         dic['symkey'] = symkey
         dic['current_n'] = f.encrypt(str(self.current_n).encode('utf-8'))
         dic['next_n'] = f.encrypt(str(self.next_n).encode('utf-8'))
-        self.update_in_send()
+        #self.update_in_send()
         self.down.send(pickle.dumps(dic))
 
     def receive(self):
@@ -118,8 +118,8 @@ class P2P(object):
                     symkey = rsa.decrypt(dic['symkey'], self_prikey)
                     f = Fernet(symkey)
                     message = f.decrypt(dic['message'])
-                    current_n = f.decrypt(dic['current_n']).decode('utf-8')
-                    next_n = f.decrypt(dic['next_n']).decode('utf-8')
+                    #current_n = f.decrypt(dic['current_n']).decode('utf-8')
+                    #next_n = f.decrypt(dic['next_n']).decode('utf-8')
                     pubkey = rsa.PublicKey.load_pkcs1(info['key'])
                     if rsa.verify(message, dic['sig'], pubkey):
                         self.msgs.append((message.decode('utf-8'), info['name'], info['sex'], info['mail']))
